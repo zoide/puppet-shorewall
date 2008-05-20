@@ -54,7 +54,8 @@ class shorewall::base {
             Exec["concat_/var/lib/puppet/modules/shorewall/nat"], 
             Exec["concat_/var/lib/puppet/modules/shorewall/blacklist"], 
             Exec["concat_/var/lib/puppet/modules/shorewall/rfc1918"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/routestopped"] 
+            Exec["concat_/var/lib/puppet/modules/shorewall/routestopped"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/params"] 
         ],
     }
 
@@ -228,6 +229,14 @@ class shorewall::base {
 			line => "${name} ${host} ${options}",
 		}
 	}
+
+    # See http://www.shorewall.net/3.0/Documentation.htm#Variables 
+    managed_file { params: }
+    define params($value, $order='100'){
+        entry { "params.d/${order}-${name}":
+            line => "${name}=${value}",
+        }
+    }
 
 }
 
