@@ -14,16 +14,56 @@
 #  * add 000-header and 999-footer files for all managed_files
 #  * added rule_section define and a few more parameters for rules
 #  * add managing for masq, proxyarp, blacklist, nat, rfc1918
+# adapted by immerda project group
+# admin+puppet(at)immerda.ch
 # adapted by Puzzle ITC - haerry+puppet(at)puzzle.ch
 
 
 modules_dir { "shorewall": }
 
-class shorewall {
+class shorewall { 
+    case $operatingsystem {
+        gentoo: { include shorewall::gentoo }
+        default: { include shorewall::base }
+    }
 
+}
+
+class shorewall::base {
 	package { shorewall: ensure => installed }
 
 	# service { shorewall: ensure  => running, enable  => true, }
+	package { 'shorewall':
+        ensure => present,
+    }
+
+
+	service{shorewall: 
+        ensure  => running, 
+        enable  => true, 
+        hasstatus => true,
+        hasrestart => true,
+        subscribe => [ 
+            Exec["concat_/var/lib/puppet/modules/shorewall/zones"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/interfaces"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/hosts"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/policy"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/rules"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/masq"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/proxyarp"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/nat"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/blacklist"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/rfc1918"], 
+            Exec["concat_/var/lib/puppet/modules/shorewall/routestopped"] 
+        ],
+    }
+
+	file {
+        	"/var/lib/puppet/modules/shorewall":
+        		ensure => directory,
+        		force => true,
+        		mode => 0755, owner => root, group => 0;
+        }
 	
 	# private
 	define managed_file () {
@@ -34,12 +74,12 @@ class shorewall {
 		}
 		file {
 			"${dir}/000-header":
-				source => "puppet://$servername/shorewall/boilerplate/${name}.header",
-				mode => 0600, owner => root, group => root,
+				source => "puppet://$server/shorewall/boilerplate/${name}.header",
+				mode => 0600, owner => root, group => 0,
 				notify => Exec["concat_${dir}"];
 			"${dir}/999-footer":
-				source => "puppet://$servername/shorewall/boilerplate/${name}.footer",
-				mode => 0600, owner => root, group => root,
+				source => "puppet://$server/shorewall/boilerplate/${name}.footer",
+				mode => 0600, owner => root, group => 0,
 				notify => Exec["concat_${dir}"];
 		}
 	}
@@ -50,19 +90,21 @@ class shorewall {
 		$dir = dirname($target)
 		file { $target:
 			content => "${line}\n",
-			mode => 0600, owner => root, group => root,
+			mode => 0600, owner => root, group => 0,
 			notify => Exec["concat_${dir}"],
 		}
 	}
 
 	# This file has to be managed in place, so shorewall can find it
 	file { "/etc/shorewall/shorewall.conf":
-		# use OS specific defaults, but use Debian/etch if no other is found
+		# use OS specific defaults, but use Default if no other is found
 		source => [
-			"puppet://$servername/shorewall/shorewall.conf.$operatingsystem.$lsbdistcodename",
-			"puppet://$servername/shorewall/shorewall.conf.$operatingsystem",
-			"puppet://$servername/shorewall/shorewall.conf.Debian.etch" ],
-		mode => 0644, owner => root, group => root,
+			"puppet://$server/shorewall/shorewall.conf.$operatingsystem.$lsbdistcodename",
+			"puppet://$server/shorewall/shorewall.conf.$operatingsystem",
+			"puppet://$server/shorewall/shorewall.conf.Default"
+            ],
+		mode => 0644, owner => root, group => 0,
+        notify => Service[shorewall],
 	}
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#Zones
@@ -105,8 +147,8 @@ class shorewall {
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#Hosts
 	managed_file { hosts: }
-	define host($zone, $options = 'tcpflags,blacklist,norfc1918') {
-		entry { "hosts.d/${name}":
+	define host($zone, $options = 'tcpflags,blacklist,norfc1918',$order='100') {
+		entry { "hosts.d/${order}-${name}":
 			line => "${zone} ${name} ${options}"
 		}
 	}
@@ -132,57 +174,65 @@ class shorewall {
 		$ratelimit = '-', $user = '-', $mark = '', $order)
 	{
 		entry { "rules.d/${order}-${name}":
-			line => "${action} ${source} ${destination} ${proto} ${destinationport} ${sourceport} ${originaldest} ${ratelimit} ${user} ${mark}",
+			line => "# ${name}\n${action} ${source} ${destination} ${proto} ${destinationport} ${sourceport} ${originaldest} ${ratelimit} ${user} ${mark}",
 		}
 	}
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#Masq
 	managed_file{ masq: }
 	# mark is new in 3.4.4
-	define masq($interface, $address, $proto = '-', $port = '-', $ipsec = '-', $mark = '') {
-		entry { "masq.d/${name}":
-			line => "${interface} ${name} ${address} ${proto} ${port} ${ipsec} ${mark}"
+	# source (= subnet) = Set of hosts that you wish to masquerade.
+	# address = If  you  specify  an  address here, SNAT will be used and this will be the source address.
+	define masq($interface, $source, $address = '-', $proto = '-', $port = '-', $ipsec = '-', $mark = '', $order='100' ) {
+		entry { "masq.d/${order}-${name}":
+			line => "# ${name}\n${interface} ${source} ${address} ${proto} ${port} ${ipsec} ${mark}"
 		}
 	}
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#ProxyArp
 	managed_file { proxyarp: }
-	define proxyarp($interface, $external, $haveroute = yes, $persistent = no) {
-		entry { "proxyarp.d/${name}":
-			line => "${name} ${interface} ${external} ${haveroute} ${persistent}"
+	define proxyarp($interface, $external, $haveroute = yes, $persistent = no, $order='100') {
+		entry { "proxyarp.d/${order}-${name}":
+			line => "# ${name}\n${name} ${interface} ${external} ${haveroute} ${persistent}"
 		}
 	}
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#NAT
 	managed_file { nat: }
-	define nat($interface, $internal, $all = 'no', $local = 'yes') {
-		entry { "nat.d/${name}":
+	define nat($interface, $internal, $all = 'no', $local = 'yes',$order='100') {
+		entry { "nat.d/${order}-${name}":
 			line => "${name} ${interface} ${internal} ${all} ${local}"
 		}
 	}
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#Blacklist
 	managed_file { blacklist: }
-	define blacklist($proto = '-', $port = '-') {
-		entry { "blacklist.d/${name}":
+	define blacklist($proto = '-', $port = '-', $order='100') {
+		entry { "blacklist.d/${order}-${name}":
 			line => "${name} ${proto} ${port}",
 		}
 	}
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#rfc1918
 	managed_file { rfc1918: }
-	define rfc1918($action = 'logdrop') {
-		entry { "rfc1918.d/${name}":
+	define rfc1918($action = 'logdrop', $order='100') {
+		entry { "rfc1918.d/${order}-${name}":
 			line => "${name} ${action}"
 		}
 	}
 	
 	# See http://www.shorewall.net/3.0/Documentation.htm#Routestopped
 	managed_file { routestopped: }
-	define routestopped($host = '-', $options = '') {
-		entry { "routestopped.d/${name}":
+	define routestopped($host = '-', $options = '', $order='100') {
+		entry { "routestopped.d/${order}-${name}":
 			line => "${name} ${host} ${options}",
 		}
 	}
 
+}
+
+class shorewall::gentoo inherits shorewall::base {
+    Package[shorewall]{
+        category => 'net-firewall',
+    }
 }
