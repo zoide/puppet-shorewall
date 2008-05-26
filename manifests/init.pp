@@ -56,9 +56,9 @@ class shorewall {
 
 	# private
 	define entry ($line) {
-        notice("debug: $dir")
 		$target = "/var/lib/puppet/modules/shorewall/${name}"
 		$dir = dirname($target)
+        notice("debug: $dir")
 		file { $target:
 			content => "${line}\n",
 			mode => 0600, owner => root, group => 0,
