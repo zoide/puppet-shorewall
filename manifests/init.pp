@@ -65,17 +65,7 @@ class shorewall {
 		}
 	}
 
-	# This file has to be managed in place, so shorewall can find it
-	file { "/etc/shorewall/shorewall.conf":
-		# use OS specific defaults, but use Default if no other is found
-		source => [
-			"puppet://$server/shorewall/shorewall.conf.$operatingsystem.$lsbdistcodename",
-			"puppet://$server/shorewall/shorewall.conf.$operatingsystem",
-			"puppet://$server/shorewall/shorewall.conf.Default"
-            ],
-		mode => 0644, owner => root, group => 0,
-        notify => Service[shorewall],
-	}
+	
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#Zones
 	managed_file{ zones: }
@@ -216,6 +206,19 @@ class shorewall::base {
         ensure => present,
     }
 
+    # This file has to be managed in place, so shorewall can find it
+	file { "/etc/shorewall/shorewall.conf":
+		# use OS specific defaults, but use Default if no other is found
+		source => [
+			"puppet://$server/shorewall/shorewall.conf.$operatingsystem.$lsbdistcodename",
+			"puppet://$server/shorewall/shorewall.conf.$operatingsystem",
+			"puppet://$server/shorewall/shorewall.conf.Default"
+            ],
+		mode => 0644, owner => root, group => 0,
+        require => Package[shorewall],
+        notify => Service[shorewall],
+	}
+
 	service{shorewall: 
         ensure  => running, 
         enable  => true, 
@@ -237,11 +240,6 @@ class shorewall::base {
         ],
         require => Package[shorewall],
     }
-
-    File["/etc/shorewall/shorewall.conf"]{
-        require => Package[shorewall],
-    }
-	
 }
 
 class shorewall::gentoo inherits shorewall::base {
