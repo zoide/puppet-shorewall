@@ -81,7 +81,7 @@ class shorewall {
 	define interface(
 		$zone,
 		$broadcast = 'detect',
-		$options = 'tcpflags,blacklist,norfc1918,routefilter,nosmurfs,logmartians',
+		$options = 'tcpflags,blacklist,routefilter,nosmurfs,logmartians',
 		$rfc1918 = false,
 		$dhcp = false
 		)
