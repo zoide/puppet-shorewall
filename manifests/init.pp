@@ -237,6 +237,10 @@ class shorewall::base {
         ],
         require => Package[shorewall],
     }
+
+    File["/etc/shorewall/shorewall.conf"]{
+        require => Package[shorewall],
+    }
 	
 }
 
