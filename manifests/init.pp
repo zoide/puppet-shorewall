@@ -37,10 +37,11 @@ class shorewall {
 
     # private
 	define managed_file () {
+		$dir = "/var/lib/puppet/modules/shorewall/${name}.d"
 		concatenated_file { "/var/lib/puppet/modules/shorewall/$name":
+            dir => $dir,
 			mode => 0600,
 		}
-		$dir = "/var/lib/puppet/modules/shorewall/${name}.d"
 		file {
 			"${dir}/000-header":
 				source => "puppet://$server/shorewall/boilerplate/${name}.header",
@@ -55,6 +56,7 @@ class shorewall {
 
 	# private
 	define entry ($line) {
+        notice("debug: $dir")
 		$target = "/var/lib/puppet/modules/shorewall/${name}"
 		$dir = dirname($target)
 		file { $target:
@@ -215,7 +217,6 @@ class shorewall::base {
         ensure => present,
     }
 
-
 	service{shorewall: 
         ensure  => running, 
         enable  => true, 
@@ -237,8 +238,6 @@ class shorewall::base {
         ],
         require => Package[shorewall],
     }
-
-		
 	
 }
 
