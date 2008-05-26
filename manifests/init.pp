@@ -30,7 +30,6 @@ class shorewall {
 }
 
 class shorewall::base {
-	package { shorewall: ensure => installed }
 
 	# service { shorewall: ensure  => running, enable  => true, }
 	package { 'shorewall':
