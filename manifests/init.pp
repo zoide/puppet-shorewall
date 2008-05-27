@@ -224,20 +224,20 @@ class shorewall::base {
         enable  => true, 
         hasstatus => true,
         hasrestart => true,
-        subscribe => [ 
-            Exec["concat_/var/lib/puppet/modules/shorewall/zones"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/interfaces"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/hosts"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/policy"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/rules"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/masq"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/proxyarp"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/nat"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/blacklist"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/rfc1918"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/routestopped"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/params"] 
-        ],
+#        subscribe => [ 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/zones"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/interfaces"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/hosts"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/policy"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/rules"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/masq"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/proxyarp"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/nat"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/blacklist"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/rfc1918"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/routestopped"], 
+#            Exec["concat_/var/lib/puppet/modules/shorewall/params"] 
+#        ],
         require => Package[shorewall],
     }
 }
