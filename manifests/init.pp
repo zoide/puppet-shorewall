@@ -184,9 +184,13 @@ class shorewall {
 	
 	# See http://www.shorewall.net/3.0/Documentation.htm#Routestopped
 	managed_file { routestopped: }
-	define routestopped($host = '-', $options = '', $order='100') {
+	define routestopped($interface = '', $host = '-', $options = '', $order='100') {
+        $real_interface = $interface ? {
+            '' => $name,
+            default => $interface,
+        }
 		entry { "routestopped.d/${order}-${name}":
-			line => "${name} ${host} ${options}",
+			line => "${real_interface} ${host} ${options}",
 		}
 	}
 
