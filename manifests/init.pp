@@ -1,3 +1,4 @@
+#
 # modules/shorewall/manifests/init.pp - manage firewalling with shorewall 3.x
 # Copyright (C) 2007 David Schmitt <david@schmitt.edv-bus.at>
 # See LICENSE for the full license granted to you.
@@ -14,10 +15,9 @@
 #  * add 000-header and 999-footer files for all managed_files
 #  * added rule_section define and a few more parameters for rules
 #  * add managing for masq, proxyarp, blacklist, nat, rfc1918
-# adapted by immerda project group
-# admin+puppet(at)immerda.ch
+# adapted by immerda project group - admin+puppet(at)immerda.ch
 # adapted by Puzzle ITC - haerry+puppet(at)puzzle.ch
-
+#
 
 modules_dir { "shorewall": }
 
