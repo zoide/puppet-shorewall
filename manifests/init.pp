@@ -25,6 +25,7 @@ class shorewall {
 
     case $operatingsystem {
         gentoo: { include shorewall::gentoo }
+        debian: { include shorewall::debian }
         default: { include shorewall::base }
     }
 
@@ -213,10 +214,15 @@ class shorewall::base {
 	file { "/etc/shorewall/shorewall.conf":
 		# use OS specific defaults, but use Default if no other is found
 		source => [
-			"puppet://$server/shorewall/shorewall.conf.$operatingsystem.$lsbdistcodename",
-			"puppet://$server/shorewall/shorewall.conf.$operatingsystem",
-			"puppet://$server/shorewall/shorewall.conf.Default"
-            ],
+            "puppet://$server/files/shorewall/${fqdn}/shorewall.conf.$operatingsystem",
+            "puppet://$server/files/shorewall/${fqdn}/shorewall.conf",
+            "puppet://$server/files/shorewall/shorewall.conf.$operatingsystem.$lsbdistcodename",
+            "puppet://$server/files/shorewall/shorewall.conf.$operatingsystem",
+            "puppet://$server/files/shorewall/shorewall.conf",
+            "puppet://$server/shorewall/shorewall.conf.$operatingsystem.$lsbdistcodename",
+            "puppet://$server/shorewall/shorewall.conf.$operatingsystem",
+            "puppet://$server/shorewall/shorewall.conf.Default"
+        ],
 		mode => 0644, owner => root, group => 0,
         require => Package[shorewall],
         notify => Service[shorewall],
@@ -248,5 +254,17 @@ class shorewall::base {
 class shorewall::gentoo inherits shorewall::base {
     Package[shorewall]{
         category => 'net-firewall',
+    }
+}
+
+class shorewall::debian inherits shorewall::base {
+    file{'/etc/default/shorewall':
+        source => "puppet://$server/shorewall/debian/default",
+        require => Package['shorewall'],
+        notify => Service['shorewall'],
+        owner => root, group => 0, mode => 0644;
+    }
+    Service['shorewall']{
+        status => '/sbin/shorewall status'
     }
 }
