@@ -1,0 +1,58 @@
+Example usage:
+
+  ## base interface
+  shorewall::interface { 
+    'eth0': zone => 'net';
+  }
+
+  ## still accept packages from AQUEOS, even if the firewall is stopped
+  shorewall::routestopped { 'aqueos':
+    host      => "$adslip1,$puppetserver",
+    interface => "eth0"
+  }
+
+  ## default zones
+  shorewall::zone {
+    'fw':   shtype  => 'firewall', order => 10;
+    'net':  shtype  => 'ipv4',     order => 100;
+  }
+
+  ## default rules
+  shorewall::policy {
+    'net-to-fw':
+       sourcezone      => 'net',
+       order           => 150,
+       destinationzone => '$FW',
+       policy          => 'DROP';
+    'fw-to-net':
+       sourcezone      => '$FW',
+       destinationzone => 'net',
+       policy          => 'ACCEPT',
+       order           => 200;
+    'all-to-all':
+       sourcezone      => 'all',
+       destinationzone => 'all',
+       policy          => 'REJECT',
+       order           => 999;
+  }
+
+  shorewall::rule_section {
+    'NEW': order => 10;
+  }
+       
+  shorewall::rule {
+    'allicmp-to-host':
+      source          => 'all',
+      destination     => '$FW',
+      order           => 40020,
+      action          => 'AllowICMPs/ACCEPT';
+    'me-puppetmaster':
+      source          => '$FW',
+      prot            => 'tcp',
+      destinationport => '8140',
+      order           => 40080,
+      action          => 'ACCEPT',
+      destination     => "net:$puppetserver";
+  }
+
+Source: http://reductivelabs.com/trac/puppet/wiki/Recipes/AqueosShorewall
