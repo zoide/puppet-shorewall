@@ -15,6 +15,7 @@
 #  * add 000-header and 999-footer files for all managed_files
 #  * added rule_section define and a few more parameters for rules
 #  * add managing for masq, proxyarp, blacklist, nat, rfc1918
+#  * add define to manage tunnels
 # adapted by immerda project group - admin+puppet(at)immerda.ch
 # adapted by Puzzle ITC - haerry+puppet(at)puzzle.ch
 #
@@ -200,6 +201,16 @@ class shorewall {
             line => "${name}=${value}",
         }
     }
+
+    # See http://www.shorewall.net/3.0/Documentation.htm#Tunnels
+    managed_file { tunnels: }
+    define tunnel($type, $zone, $gateway, $gatewayzone = '', $order='100'){
+        entry { "params.d/${order}-${name}":
+            #TYPE           ZONE          GATEWAY          GATEWAY ZONE
+            line => "${type} ${zone} ${gateway} ${gatewayzone}",
+        }
+    }
+
 
 }
 
