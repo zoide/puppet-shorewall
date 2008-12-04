@@ -108,9 +108,16 @@ class shorewall {
 
 	# See http://www.shorewall.net/3.0/Documentation.htm#Hosts
 	managed_file { hosts: }
-	define host($zone, $options = 'tcpflags,blacklist,norfc1918',$order='100') {
+	define host($zone, $options = 'tcpflags,blacklist,norfc1918',$order='100',$host='') {
+    
+    if $host {
+      $line = "${zone} ${host} ${options}"
+    } else {
+      $line = "${zone} ${name} ${options}"
+    }
+
 		entry { "hosts.d/${order}-${name}":
-			line => "${zone} ${name} ${options}"
+			line => $line,
 		}
 	}
 
