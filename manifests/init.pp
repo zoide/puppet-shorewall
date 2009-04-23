@@ -212,7 +212,7 @@ class shorewall {
     # See http://www.shorewall.net/3.0/Documentation.htm#Tunnels
     managed_file { tunnels: }
     define tunnel($type, $zone, $gateway, $gatewayzone = '', $order='100'){
-        entry { "params.d/${order}-${name}":
+        entry { "tunnels.d/${order}-${name}":
             #TYPE           ZONE          GATEWAY          GATEWAY ZONE
             line => "${type} ${zone} ${gateway} ${gatewayzone}",
         }
@@ -263,7 +263,8 @@ class shorewall::base {
             Exec["concat_/var/lib/puppet/modules/shorewall/blacklist"], 
             Exec["concat_/var/lib/puppet/modules/shorewall/rfc1918"], 
             Exec["concat_/var/lib/puppet/modules/shorewall/routestopped"], 
-            Exec["concat_/var/lib/puppet/modules/shorewall/params"] 
+            Exec["concat_/var/lib/puppet/modules/shorewall/params"],
+            Exec["concat_/var/lib/puppet/modules/shorewall/tunnels"] 
         ],
         require => Package[shorewall],
     }
