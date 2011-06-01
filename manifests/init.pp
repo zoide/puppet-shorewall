@@ -20,8 +20,6 @@
 # adapted by Puzzle ITC - haerry+puppet(at)puzzle.ch
 #
 
-modules_dir { "shorewall": }
-
 class shorewall { 
 
     case $operatingsystem {
