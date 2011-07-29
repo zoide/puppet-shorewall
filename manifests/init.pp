@@ -1,7 +1,7 @@
 class shorewall { 
 
-  include common::moduledir
-  module_dir { "shorewall": }
+  #include moduledir
+  module_dir { "shorewall": before => Package["shorewall"], }
 
   case $operatingsystem {
     gentoo: { include shorewall::gentoo }
@@ -49,4 +49,6 @@ class shorewall {
   shorewall::managed_file { routestopped: }
   # See http://www.shorewall.net/3.0/Documentation.htm#Variables 
   shorewall::managed_file { params: }
+  
+  shorewall::managed_file { tunnels: }
 }

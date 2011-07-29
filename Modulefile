@@ -1,11 +1,11 @@
-name    'do-shorewall'
+name 'do-shorewall'
 version '0.0.1'
-source ''
-author 'do'
-license ''
-summary ''
-description ''
-project_page ''
 
-## Add dependencies, if any:
-# dependency 'username/name', '>= 1.2.0'
+author 'do'
+license 'GPL'
+project_page ''
+source 'git@github.com:do/puppet-shorewall.git'
+summary ''
+description 'Puppet shorewall module.
+'
+dependency 'DavidSchmitt/common', '>= 1.0.0'
