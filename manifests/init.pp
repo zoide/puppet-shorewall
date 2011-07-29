@@ -24,7 +24,10 @@ class shorewall {
 
     case $operatingsystem {
         gentoo: { include shorewall::gentoo }
-        debian: { include shorewall::debian }
+        debian: { 
+		import "debian.pp"
+		include shorewall::debian 
+	}
         ubuntu: { include shorewall::ubuntu }
         default: { include shorewall::base }
     }
@@ -276,18 +279,6 @@ class shorewall::base {
 class shorewall::gentoo inherits shorewall::base {
     Package[shorewall]{
         category => 'net-firewall',
-    }
-}
-
-class shorewall::debian inherits shorewall::base {
-    file{'/etc/default/shorewall':
-        source => "puppet://$server/shorewall/debian/default",
-        require => Package['shorewall'],
-        notify => Service['shorewall'],
-        owner => root, group => 0, mode => 0644;
-    }
-    Service['shorewall']{
-        status => '/sbin/shorewall status'
     }
 }
 
