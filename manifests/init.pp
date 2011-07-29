@@ -210,10 +210,14 @@ class shorewall {
 
     # See http://www.shorewall.net/3.0/Documentation.htm#Tunnels
     managed_file { tunnels: }
-    define tunnel($type, $zone, $gateway, $gatewayzone = '', $order='100'){
+    define tunnel($type='', $zone, $gateway, $gatewayzone = '', $order='100'){
+	$type_real = $type ? {
+		"" => $name,
+		default => $type,
+	}
         entry { "tunnels.d/${order}-${name}":
             #TYPE           ZONE          GATEWAY          GATEWAY ZONE
-            line => "${type} ${zone} ${gateway} ${gatewayzone}",
+            line => "${type_real} ${zone} ${gateway} ${gatewayzone}",
         }
     }
 
