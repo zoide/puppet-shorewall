@@ -1,4 +1,4 @@
-class shorewall::rules::ssh($ports) {
+class shorewall::rules::ssh($ports=["22"]) {
   $flatted_ports = join($ports,',')
   shorewall::rule { 'net-me-tcp_ssh':
     source          => 'net',
@@ -6,6 +6,6 @@ class shorewall::rules::ssh($ports) {
     proto           => 'tcp',
     destinationport => $flatted_ports,
     order           => 240,
-    action          => 'ACCEPT';
+    action          => 'SSH/ACCEPT';
   }
 }
