@@ -1,8 +1,8 @@
-class shorewall::rules::imap {
+class shorewall::rules::imap ($destination="\$FW") {
     shorewall::rule {
         'net-me-tcp_imap_s':
             source          =>      'net',
-            destination     =>      '$FW',
+            destination     =>      $destination,
             proto           =>      'tcp',
             destinationport =>      '143,993',
             order           =>      260,

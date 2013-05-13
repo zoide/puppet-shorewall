@@ -1,7 +1,7 @@
-class shorewall::rules::http {
+class shorewall::rules::http ($destination="\$FW") {
     shorewall::rule { 'net-me-http-tcp':
         source          => 'net',
-        destination     => '$FW',
+        destination     => $destination,
         proto           => 'tcp',
         destinationport => '80',
         order           => 240,

@@ -1,7 +1,7 @@
-class shorewall::rules::https {
+class shorewall::rules::https ($destination="\$FW"){
     shorewall::rule { 'net-me-https-tcp':
         source          => 'net',
-        destination     => '$FW',
+        destination     => $destination,
         proto           => 'tcp',
         destinationport => '443',
         order           => 240,
