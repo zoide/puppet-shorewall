@@ -1,6 +1,6 @@
 define shorewall::managed_file () {
     $dir = "/var/lib/puppet/modules/shorewall/${name}.d"
-    concatenated_file {
+    common::concatenated_file {
         "/var/lib/puppet/modules/shorewall/$name" :
             dir => $dir,
             mode => 0600,
