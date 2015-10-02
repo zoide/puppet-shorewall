@@ -9,6 +9,6 @@ define shorewall::entry ($ensure = present,
             mode => 0600,
             owner => root,
             group => 0,
-            notify => Exec["concat_${dir}"],
+            #notify => Exec["concat_${dir}"],
     }
 }

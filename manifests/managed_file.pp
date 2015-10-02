@@ -16,10 +16,10 @@ define shorewall::managed_file (
   file {
     "${dir}/000-header":
       source => "puppet:///modules/shorewall/boilerplate/${name}.header",
-      notify => Exec["concat_${dir}"];
+      #notify => Exec["concat_${dir}"];
 
     "${dir}/999-footer":
       source => "puppet:///modules/shorewall/boilerplate/${name}.footer",
-      notify => Exec["concat_${dir}"];
+      #notify => Exec["concat_${dir}"];
   }
 }
